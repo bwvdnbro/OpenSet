@@ -34,6 +34,7 @@
  *
  * @param argc Number of command line arguments.
  * @param argv Command line arguments.
+ * @return Exit code: 0 on success.
  */
 int main(int argc, char **argv) {
   CardManager card_manager;

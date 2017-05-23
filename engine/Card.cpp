@@ -32,7 +32,7 @@
 Card::Card()
     : _number_of_symbols(0), _colour(CardProperties::CARDCOLOUR_COUNTER),
       _symbol(CardProperties::CARDSYMBOL_COUNTER),
-      _fill(CardProperties::CARDFILL_COUNTER) {}
+      _fill(CardProperties::CARDFILL_COUNTER), _clicked(false) {}
 
 /**
  * @brief Constructor.
@@ -47,7 +47,17 @@ Card::Card()
 Card::Card(unsigned char number_of_symbols, CardProperties::CardColour colour,
            CardProperties::CardSymbol symbol, CardProperties::CardFill fill)
     : _number_of_symbols(number_of_symbols), _colour(colour), _symbol(symbol),
-      _fill(fill) {}
+      _fill(fill), _clicked(false) {}
+
+/**
+ * @brief Set the state of the card to clicked.
+ */
+void Card::click() { _clicked = true; }
+
+/**
+ * @brief Set the state of the card to unclicked.
+ */
+void Card::unclick() { _clicked = false; }
 
 /**
  * @brief Get the number of symbols on the card.
@@ -76,3 +86,10 @@ CardProperties::CardSymbol Card::get_symbol() const { return _symbol; }
  * @return CardFill of the card.
  */
 CardProperties::CardFill Card::get_fill() const { return _fill; }
+
+/**
+ * @brief Check if the card is clicked.
+ *
+ * @return True if the card has been clicked.
+ */
+bool Card::is_clicked() const { return _clicked; }

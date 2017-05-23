@@ -54,12 +54,24 @@ private:
   /*! @brief Index of the next card that should be added to the deck. */
   unsigned char _next_card;
 
+  /*! @brief Indices of clicked cards. */
+  unsigned char _clicked[3];
+
+  /*! @brief Number of clicked cards. */
+  unsigned char _num_clicked;
+
 public:
   CardManager();
 
   std::vector<Card> get_deck() const;
 
   const Card &get_card(unsigned char index) const;
+
+  void click_card(unsigned char index);
+
+  void check_set();
+
+  static bool is_set(Card &card1, Card &card2, Card &card3);
 };
 
 #endif // OPENSET_CARDMANAGER_HPP

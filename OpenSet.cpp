@@ -17,51 +17,28 @@
  ******************************************************************************/
 
 /**
- * @file Card.hpp
+ * @file OpenSet.cpp
  *
- * @brief Single card in the game.
+ * @brief Main program.
  *
  * @author Bert Vandenbroucke (bert.vandenbroucke@gmail.com)
  */
 
-#ifndef OPENSET_CARD_HPP
-#define OPENSET_CARD_HPP
-
-#include "CardProperties.hpp"
+#include "engine/CardManager.hpp"
+#include "visuals/Window.hpp"
 
 /**
- * @brief Single card in the game.
+ * @brief Main program.
+ *
+ * @param argc Number of command line arguments.
+ * @param argv Command line arguments.
+ * @return Exit code: 0 on success.
  */
-class Card {
-private:
-  /*! @brief Number of symbols on the card. */
-  unsigned char _number_of_symbols;
+int main(int argc, char **argv){
+  CardManager card_manager;
+  Window window(argc, argv, 200, 200, "Test window", card_manager);
 
-  /*! @brief Card colour. */
-  CardProperties::CardColour _colour;
+  window.show();
 
-  /*! @brief Symbol type. */
-  CardProperties::CardSymbol _symbol;
-
-  /*! @brief Fill type. */
-  CardProperties::CardFill _fill;
-
-  /*! @brief Was this card clicked or not? */
-  bool _clicked;
-
-public:
-  Card();
-  Card(unsigned char number_of_symbols, CardProperties::CardColour colour,
-       CardProperties::CardSymbol symbol, CardProperties::CardFill fill);
-
-  void click();
-  void unclick();
-
-  unsigned char get_number_of_symbols() const;
-  CardProperties::CardColour get_colour() const;
-  CardProperties::CardSymbol get_symbol() const;
-  CardProperties::CardFill get_fill() const;
-  bool is_clicked() const;
-};
-
-#endif // OPENSET_CARD_HPP
+  return 0;
+}

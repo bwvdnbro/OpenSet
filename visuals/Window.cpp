@@ -114,6 +114,10 @@ Window::Window(int &argc, char **argv, unsigned int size_x, unsigned int size_y,
       g_signal_connect(G_OBJECT(_cards[3 * ix + iy]), "expose_event",
                        G_CALLBACK(card_expose_event),
                        &_card_expose_events[3 * ix + iy]);
+      gtk_widget_set_events(_cards[3 * ix + iy], GDK_BUTTON_PRESS_MASK);
+      g_signal_connect(_cards[3 * ix + iy], "button_press_event",
+                       G_CALLBACK(card_click_event),
+                       &_card_expose_events[3 * ix + iy]);
 
       gtk_container_add(GTK_CONTAINER(_aspect_frames[3 * ix + iy]),
                         _cards[3 * ix + iy]);
@@ -287,6 +291,13 @@ void Window::draw_card(unsigned char index) {
   draw_rounded_rectangle(cr, 0, 0, width, height, 20.);
   cairo_fill(cr);
 
+  const Card &card = _card_manager.get_card(index);
+  if (card.is_clicked()) {
+    cairo_set_source_rgb(cr, 1, 0, 0);
+    draw_rounded_rectangle(cr, 0, 0, width, height, 20.);
+    cairo_stroke(cr);
+  }
+
   double shape_size[2];
   shape_size[0] = 0.5 * width;
   shape_size[1] = 0.5 * shape_size[0];
@@ -294,7 +305,6 @@ void Window::draw_card(unsigned char index) {
   double shape_origin[2];
   shape_origin[0] = 0.5 * width;
 
-  const Card &card = _card_manager.get_card(index);
   int num_shape = card.get_number_of_symbols();
   CardProperties::CardSymbol shape_type = card.get_symbol();
   CardProperties::CardColour colour_type = card.get_colour();
@@ -328,6 +338,19 @@ void Window::draw_card(unsigned char index) {
 }
 
 /**
+ * @brief Notify the CardManager that the card with the given index has been
+ * clicked.
+ *
+ * Also forces a redraw of all cards.
+ */
+void Window::card_clicked(unsigned char index) {
+  _card_manager.click_card(index);
+  for (unsigned char i = 0; i < 18; ++i) {
+    gtk_widget_queue_draw(_cards[i]);
+  }
+}
+
+/**
  * @brief Event called when the window is closed by the user.
  *
  * @param widget Window that was closed.
@@ -345,15 +368,30 @@ void Window::delete_event(GtkWidget *widget, GdkEvent *event, gpointer data) {
  * @param widget Card that is exposed.
  * @param event GDK expose event.
  * @param data Extra data passed on to this event: a pointer to the Window
- * instance
- * and the index of the card that is exposed.
+ * instance and the index of the card that is exposed.
  * @return FALSE, because we have handled the event and it should not be
- * propagated
- * further.
+ * propagated further.
  */
 gboolean Window::card_expose_event(GtkWidget *widget, GdkEventExpose *event,
                                    gpointer data) {
   CardExposeEvent *card_expose_event = static_cast<CardExposeEvent *>(data);
   card_expose_event->get_window()->draw_card(card_expose_event->get_index());
+  return FALSE;
+}
+
+/**
+ * @brief Event triggered when a card is clicked.
+ *
+ * @param widget Card that is exposed.
+ * @param event GDK event.
+ * @param data Extra data passed on to this event: a pointer to the Window
+ * instance and the index of the card that is exposed.
+ * @return FALSE, because we have handled the event and it should not be
+ * propagated further.
+ */
+gboolean Window::card_click_event(GtkWidget *widget, GdkEvent *event,
+                                  gpointer data) {
+  CardExposeEvent *card_expose_event = static_cast<CardExposeEvent *>(data);
+  card_expose_event->get_window()->card_clicked(card_expose_event->get_index());
   return FALSE;
 }

@@ -39,3 +39,19 @@ enable_testing()
 
 # Configure the unit tests
 add_subdirectory(test)
+
+# Configure the main program
+set(OPENSET_SOURCES
+    OpenSet.cpp
+    engine/Card.cpp
+    engine/Card.hpp
+    engine/CardManager.cpp
+    engine/CardManager.hpp
+    engine/CardProperties.cpp
+    engine/CardProperties.hpp
+    visuals/Window.cpp
+    visuals/Window.hpp
+)
+
+add_executable(OpenSet ${OPENSET_SOURCES})
+target_link_libraries(OpenSet ${GTK2_LIBRARIES})

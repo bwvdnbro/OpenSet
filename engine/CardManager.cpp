@@ -27,6 +27,7 @@
 #include "CardManager.hpp"
 
 #include <algorithm>
+#include <cassert>
 #include <cstdlib>
 #include <ctime>
 
@@ -62,7 +63,7 @@ public:
 /**
  * @brief Constructor.
  */
-CardManager::CardManager() {
+CardManager::CardManager() : _num_clicked(0) {
   // initialize the random generator
   srand(time(NULL));
 
@@ -129,4 +130,88 @@ std::vector<Card> CardManager::get_deck() const {
  */
 const Card &CardManager::get_card(unsigned char index) const {
   return _cards[_main_deck[index]];
+}
+
+/**
+ * @brief Click the card with the given index.
+ */
+void CardManager::click_card(unsigned char index) {
+  unsigned char i = 0;
+  while (i < _num_clicked && _clicked[i] != index) {
+    ++i;
+  }
+  if (i == _num_clicked) {
+    assert(i < 3);
+    // new card was clicked
+    _clicked[_num_clicked] = index;
+    _cards[_main_deck[index]].click();
+    ++_num_clicked;
+  } else {
+    // clicked card was clicked again
+    _cards[_main_deck[index]].unclick();
+    unsigned char j = i + 1;
+    while (j < _num_clicked) {
+      _clicked[i] = _clicked[j];
+      ++i;
+      ++j;
+    }
+    --_num_clicked;
+  }
+
+  if (_num_clicked == 3) {
+    check_set();
+  }
+}
+
+/**
+ * @brief Check if the clicked cards make up a set, and if so, remove it.
+ */
+void CardManager::check_set() {
+  if (is_set(_cards[_main_deck[_clicked[0]]], _cards[_main_deck[_clicked[1]]],
+             _cards[_main_deck[_clicked[2]]])) {
+    unsigned char next_clicked = 0;
+    while (_next_card < 81 && next_clicked < 3) {
+      _main_deck[_clicked[next_clicked]] = _card_stack[_next_card];
+      ++next_clicked;
+      ++_next_card;
+    }
+  } else {
+    _cards[_main_deck[_clicked[0]]].unclick();
+    _cards[_main_deck[_clicked[1]]].unclick();
+    _cards[_main_deck[_clicked[2]]].unclick();
+  }
+  _num_clicked = 0;
+}
+
+/**
+ * @brief Check if the three given cards make up a set.
+ *
+ * @param card1 First card.
+ * @param card2 Second card.
+ * @param card3 Third card.
+ * @return True if the three cards make up a set.
+ */
+bool CardManager::is_set(Card &card1, Card &card2, Card &card3) {
+  bool colour_set = (card1.get_colour() == card2.get_colour() &&
+                     card1.get_colour() == card3.get_colour()) ||
+                    (card1.get_colour() != card2.get_colour() &&
+                     card1.get_colour() != card3.get_colour() &&
+                     card2.get_colour() != card3.get_colour());
+  bool symbol_set = (card1.get_symbol() == card2.get_symbol() &&
+                     card1.get_symbol() == card3.get_symbol()) ||
+                    (card1.get_symbol() != card2.get_symbol() &&
+                     card1.get_symbol() != card3.get_symbol() &&
+                     card2.get_symbol() != card3.get_symbol());
+  bool fill_set = (card1.get_fill() == card2.get_fill() &&
+                   card1.get_fill() == card3.get_fill()) ||
+                  (card1.get_fill() != card2.get_fill() &&
+                   card1.get_fill() != card3.get_fill() &&
+                   card2.get_fill() != card3.get_fill());
+  bool num_set =
+      (card1.get_number_of_symbols() == card2.get_number_of_symbols() &&
+       card1.get_number_of_symbols() == card3.get_number_of_symbols()) ||
+      (card1.get_number_of_symbols() != card2.get_number_of_symbols() &&
+       card1.get_number_of_symbols() != card3.get_number_of_symbols() &&
+       card2.get_number_of_symbols() != card3.get_number_of_symbols());
+  return colour_set && symbol_set && fill_set && num_set;
 }

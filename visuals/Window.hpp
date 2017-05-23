@@ -94,10 +94,13 @@ private:
                                  CardProperties::CardColour colour);
 
   void draw_card(unsigned char index);
+  void card_clicked(unsigned char index);
 
   static void delete_event(GtkWidget *widget, GdkEvent *event, gpointer data);
   static gboolean card_expose_event(GtkWidget *widget, GdkEventExpose *event,
                                     gpointer data);
+  static gboolean card_click_event(GtkWidget *widget, GdkEvent *event,
+                                   gpointer data);
 };
 
 #endif // OPENSET_WINDOW_HPP
